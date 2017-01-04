@@ -9,6 +9,9 @@
       "email": "phil.baines@wubbleyew.com"
     }
   ],
+  "scripts":{
+    "start":"node spype.js"
+  },
   "dependencies": {
     "discord.io": "^2.2.4",
     "markdown": "^0.5.0",
