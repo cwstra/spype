@@ -23,7 +23,7 @@ var DiscordHelper = require("./DiscordHelper");
 DiscordHelper.debug = debug;
 DiscordHelper.Connect();
 
-// Register Callbacks 
+// Register Callbacks
 
 	// Skype to Discord
 	SkypeHelper.MessageCallback(DiscordHelper.SendMessage);
@@ -40,8 +40,8 @@ var sayToAll = function(message)
 			DiscordHelper.SendMessage(pipe, message, "SPYPE");
 		}
 	});
-}
-	
+};
+
 var sendDisconnectedMessages = function()
 {
 	pipes.each(function(pipe)
@@ -52,12 +52,12 @@ var sendDisconnectedMessages = function()
 			DiscordHelper.SendMessage(pipe, "Disconnected", "SPYPE");
 		}
 	});
-}
+};
 
 process.stdin.resume();
 process.stdin.setEncoding('utf8');
 
-process.stdin.on('data', function (text) 
+process.stdin.on('data', function (text)
 {
 	if(text.startsWith("/say "))
 	{
