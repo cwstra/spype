@@ -7,12 +7,12 @@ var output = require("./Output");
 var pipes = require("./PipesHelper");
 var SkywebClient = require('skyweb');
 
-var SkypeHelper = 
+var SkypeHelper =
 {
 	skyweb : new SkywebClient(),
 	isConnected : false,
 	debug : false,
-	converters : 
+	converters :
 	[
 		{
 			filter: ['a', 'ss', 'quote', 'legacyquote'],
@@ -32,10 +32,10 @@ var SkypeHelper =
 			{
 				var initiatorTag = node.getElementsByTagName("initiator")[0];
 				var valueTag = node.getElementsByTagName("value")[0];
-				
+
 				var initiator = initiatorTag.innerHTML.replace("8:", "");
 				var value = valueTag.innerHTML;
-				
+
 				if(initiatorTag && valueTag)
 					return util.format("Skype topic changed to \"%s\" by \"%s\".", value, initiator);
 				else
@@ -48,10 +48,10 @@ var SkypeHelper =
 			{
 				var initiatorTag = node.getElementsByTagName("initiator")[0];
 				var targetTag = node.getElementsByTagName("target")[0];
-				
+
 				var initiator = initiatorTag.innerHTML.replace("8:", "");
 				var target = targetTag.innerHTML.replace("8:", "");
-				
+
 				if(initiatorTag && targetTag)
 				{
 					if(initiator != target)
@@ -69,17 +69,17 @@ var SkypeHelper =
 			{
 				var initiatorTag = node.getElementsByTagName("initiator")[0];
 				var targetTag = node.getElementsByTagName("target")[0];
-				
+
 				var initiator = initiatorTag.innerHTML.replace("8:", "");
 				var target = targetTag.innerHTML.replace("8:", "");
-				
+
 				if(initiatorTag && targetTag)
 				{
 					if(initiator != target)
 						return util.format("\"%s\" was added to the skype group by \"%s\".", target, initiator);
 					else
 						return util.format("\"%s\" joined the skype group.", target);
-				}	
+				}
 				else
 					return "Someone joined the skype group.";
 			}
@@ -90,9 +90,9 @@ var SkypeHelper =
 		output.write("Connecting Skype...\n");
 		try
 		{
-			this.skyweb.login(config.skype_username, config.skype_password).then((skypeAccount) => 
-			{    
-				output.write(" * Skype connected.\n")
+			this.skyweb.login(config.skype_username, config.skype_password).then((skypeAccount) =>
+			{
+				output.write(" * Skype connected.\n");
 				SkypeHelper.skyweb.setStatus('Online');
 				SkypeHelper.isConnected = true;
 				pipes.each(function(pipe)
@@ -100,7 +100,7 @@ var SkypeHelper =
 					if(pipe.announceConnection)
 						SkypeHelper.SendMessage(pipe, "Reconnected", "SPYPE");
 				});
-			});	
+			});
 			this.skyweb.messagesCallback = SkypeHelper.skypeMessagesReceived;
 		}
 		catch(err)
@@ -118,19 +118,19 @@ var SkypeHelper =
 		//if(pipe.lastSkypeSender != null)
 			//skypeMessage += "\n";
 
-		if(sender != null && sender != pipe.lastSkypeSender)
+		if(sender !== null && sender != pipe.lastSkypeSender)
 			skypeMessage += util.format("[%s]\n", sender);
-		
+
 		skypeMessage += message;
-		
+
 		output.write("SKYPE: (" + pipe.name + ") " + skypeMessage);
-		
+
 		if(SkypeHelper.isConnected)
 		{
 			try
 			{
 				SkypeHelper.skyweb.sendMessage(pipe.skypeId, skypeMessage);
-				pipe.lastSkypeSender = sender;	
+				pipe.lastSkypeSender = sender;
 				output.write("SENT!\n");
 			}
 			catch(err)
@@ -152,15 +152,16 @@ var SkypeHelper =
 	},
 	skypeMessagesReceived : function(messages)
 	{
-		messages.forEach(function (message) 
+		messages.forEach(function (message)
 		{
-			var spypeIsNotSender = (message.resource.from.toLowerCase().indexOf(config.skype_username.toLowerCase()) === -1);
+			var name = config.skype_username.toLowerCase().substring(0,config.skype_username.indexOf("@"));
+			var spypeIsNotSender = (message.resource.from.toLowerCase().indexOf(name) === -1);
 			if(spypeIsNotSender && message.resource.messagetype !== 'Control/Typing' && message.resource.messagetype !== 'Control/ClearTyping')
 			{
 				var conversationLink = message.resource.conversationLink;
 				var conversationId = conversationLink.substring(conversationLink.lastIndexOf('/') + 1);
 				var pipe = pipes.getPipe({ skypeId: conversationId });
-				if(pipe != null)
+				if(pipe !== null)
 				{
 					// Skype message received, clear lastSkypeSender
 					pipe.lastSkypeSender = null;
@@ -183,6 +184,6 @@ var SkypeHelper =
 			}
 		});
 	}
-}
+};
 
 module.exports = SkypeHelper;
