@@ -6,7 +6,7 @@ var output = require("./Output");
 var pipes = require("./PipesHelper");
 var Discord = require('discord.io');
 
-var DiscordHelper = 
+var DiscordHelper =
 {
 	isConnected : false,
 	debug : false,
@@ -32,9 +32,9 @@ var DiscordHelper =
 				});
 			}
 
-			
+
 			this.discord.on('ready', function() {
-				output.write(" * Discord connected.\n")
+				output.write(" * Discord connected.\n");
 				DiscordHelper.isConnected = true;
 				pipes.each(function(pipe)
 				{
@@ -42,7 +42,7 @@ var DiscordHelper =
 						DiscordHelper.SendMessage(pipe, "Reconnected", "SPYPE");
 				});
 			});
-			
+
 			this.discord.on('message', DiscordHelper.discordMessageReceived);
 			this.discord.on('disconnected', DiscordHelper.discordDisconnected);
 		}
@@ -57,28 +57,28 @@ var DiscordHelper =
 	SendMessage : function(pipe, message, sender)
 	{
 		var discordMessage = "";
-		
+
 		//if(pipe.lastDiscordSender != null)
 			//discordMessage += "\n";
-		
-		if(sender != null && sender != pipe.lastDiscordSender)
+
+		if(sender !== null && sender != pipe.lastDiscordSender)
 			discordMessage += util.format("**[%s]**\n", sender);
 
 		discordMessage += message;
-		
+
 		output.write("DISCORD: (" + pipe.name + ") " + discordMessage);
-		
+
 		if(DiscordHelper.isConnected)
 		{
 			try
 			{
 				DiscordHelper.discord.sendMessage(
-					{ 
-						to: pipe.discordId, 
-						message: discordMessage, 
-						tts: false, 
+					{
+						to: pipe.discordId,
+						message: discordMessage,
+						tts: false,
 						typing: false
-					}, 
+					},
 					function(err, response)
 					{
 						if(DiscordHelper.debug)
@@ -116,10 +116,10 @@ var DiscordHelper =
 	},
 	discordMessageReceived : function(user, userID, channelID, message, rawEvent)
 	{
-		if(user != config.discord_username)
+		if(user != config.discord_username.substring(0,config.discord_username.indexOf("#")))
 		{
 			var pipe = pipes.getPipe({ discordId: channelID });
-			if(pipe != null)
+			if(pipe !== null)
 			{
 				// Discord message received, clear lastDiscordSender
 				pipe.lastDiscordSender = null;
@@ -145,6 +145,6 @@ var DiscordHelper =
 		output.write(" * Discord disconnected.\n");
 		process.exit();
 	}
-}
+};
 
 module.exports = DiscordHelper;
